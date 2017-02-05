@@ -2,7 +2,7 @@
 
 namespace App\Core\Abstracts;
 
-abstract class Singleton
+trait Singleton
 {
     /**
      * Instance

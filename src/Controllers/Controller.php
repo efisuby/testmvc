@@ -3,9 +3,12 @@ namespace App\Controllers;
 
 
 use App\Core\Abstracts\Creatable;
+use App\Core\Exceptions\HttpException;
+use App\Core\Exceptions\RedirectException;
 use App\Core\HandleResult;
 use App\Core\HttpRequest;
-use Core\Exceptions\HttpException;
+use App\Core\Session;
+use App\Models\User;
 
 /**
  * Class Controller
@@ -22,8 +25,8 @@ abstract class Controller extends Creatable implements IController
     public function handleRequest(HttpRequest $request)
     {
         $action = $request->getRequestVar('action', $this->getDefaultAction());
-
         $action = $action . ACTION_POSTFIX;
+
         if (method_exists($this, $action)) {
             return $this->$action($request);
         } else {
@@ -36,6 +39,11 @@ abstract class Controller extends Creatable implements IController
      */
     public function preHandleRequest(HttpRequest $request)
     {
+        $action = $request->getRequestVar('action', $this->getDefaultAction());
+        if ($this->checkForbiddenAction($action)) {
+            throw new RedirectException('/');
+        }
+
         return null;
     }
 
@@ -44,6 +52,11 @@ abstract class Controller extends Creatable implements IController
      */
     public function postHandleRequest(HttpRequest $request, HandleResult $result)
     {
+        if ($userId = Session::getInstance()->get('userId')) {
+            $user = User::get($userId);
+            $result->setVar('user', $user);
+        }
+
         return null;
     }
 
@@ -55,4 +68,16 @@ abstract class Controller extends Creatable implements IController
     {
         return 'index';
     }
+
+    protected function getForbiddenActions()
+    {
+        return [];
+    }
+
+    protected function checkForbiddenAction($action)
+    {
+        $actions = $this->getForbiddenActions();
+        return in_array($action, $actions);
+    }
+
 }

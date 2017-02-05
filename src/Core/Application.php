@@ -63,7 +63,7 @@ class Application extends Creatable
     protected function getControllerName(HttpRequest $request)
     {
         if ($this->controllerName == null) {
-            $this->controllerName = $request->getPostVar('area', MAIN_CONTROLLER);
+            $this->controllerName = $request->getRequestVar('area', MAIN_CONTROLLER);
         }
 
         return $this->controllerName;

@@ -5,8 +5,10 @@ namespace App\Core\DB;
 use App\Core\Abstracts\Singleton;
 use PDO;
 
-class DBPool extends Singleton
+class DBPool
 {
+    use Singleton;
+
     /** @var PDO[] */
     protected $dbPool = [];
     protected $default = null;

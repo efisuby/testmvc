@@ -15,20 +15,28 @@ class HttpRequest extends Creatable
 
     protected $rawPost;
 
+    protected static $currentRequest;
+
+    /**
+     * @return HttpRequest
+     */
     public static function createFromGlobals()
     {
-        return
-            static::create()
-                ->setCookies($_COOKIE)
-                ->setFiles($_FILES)
-                ->setGet($_GET)
-                ->setPost($_POST)
-                ->setServer($_SERVER);
+        if (static::$currentRequest == null)
+            static::$currentRequest =
+                static::create()
+                    ->setCookies($_COOKIE)
+                    ->setFiles($_FILES)
+                    ->setGet($_GET)
+                    ->setPost($_POST)
+                    ->setServer($_SERVER);
+
+        return static::$currentRequest;
     }
 
     public function getPostVar($var, $default = null)
     {
-        if (isset($this->_post[$var])) {
+        if (isset($this->_post[$var]) && $this->_post[$var]) {
             return $this->_post[$var];
         } else {
             return $default;
@@ -37,7 +45,7 @@ class HttpRequest extends Creatable
 
     public function getGetVar($var, $default = null)
     {
-        if (isset($this->_get[$var])) {
+        if (isset($this->_get[$var]) && $this->_get[$var]) {
             return $this->_get[$var];
         } else {
             return $default;

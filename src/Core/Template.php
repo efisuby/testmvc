@@ -8,7 +8,8 @@ use App\Core\Abstracts\Creatable;
 class Template extends Creatable
 {
     protected static $templatePath = [];
-
+    /** @var HandleResult */
+    protected $mainResult = null;
     public static function addTemplatePath($path)
     {
         self::$templatePath[] = $path;
@@ -16,14 +17,20 @@ class Template extends Creatable
 
     public function handleResult(HandleResult $result)
     {
+        $this->mainResult = $result;
         $this->render($result->getMainView(), ['view' => $result->getView()] + $result->getVars());
     }
 
     public function render($template, $vars = [])
     {
+        foreach ($this->mainResult->getVars() as $var => $value) {
+            $$var = $value;
+        }
+
         foreach ($vars as $var => $value) {
             $$var = $value;
         }
+
 
         include $this->getTemplate($template);
     }
